@@ -70,13 +70,18 @@
         <!-- Copy native DLLs from libs to classes so they are on the runtime path -->
         <resources>
             <resource>
+                <directory>${project.basedir}/src/main/resources</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+            <resource>
                 <directory>${project.basedir}/libs</directory>
                 <includes>
                     <include>*.dll</include>
                 </includes>
                 <targetPath>${project.build.outputDirectory}</targetPath>
             </resource>
-            <!-- ...existing resources if any... -->
         </resources>
 
         <plugins>
