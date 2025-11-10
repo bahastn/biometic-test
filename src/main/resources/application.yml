@@ -17,6 +17,9 @@ spring:
   h2:
     console:
       enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: true
 
 zkteco:
   ip: 192.168.1.127

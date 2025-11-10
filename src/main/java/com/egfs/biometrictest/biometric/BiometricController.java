@@ -5,7 +5,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/zkteco")
@@ -46,6 +48,12 @@ public class BiometricController {
     @GetMapping(value = "/punches/realtime", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter streamRealtimePunches() {
         return punchService.registerForRealtimeUpdates();
+    }
+
+    @GetMapping("/test-connection")
+    public ResponseEntity<Map<String, Object>> testConnection() {
+        Map<String, Object> result = templateService.testConnection();
+        return ResponseEntity.ok(result);
     }
 }
 
