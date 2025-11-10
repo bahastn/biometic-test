@@ -6,7 +6,10 @@ Spring Boot application for connecting to ZKTeco biometric devices (e.g., iFace 
 
 - Connect to ZKTeco devices via COM/ActiveX interface
 - Sync fingerprint templates from the device to local database
-- REST API for triggering synchronization
+- **Sync punch/attendance logs from the device**
+- **Real-time punch monitoring via Server-Sent Events (SSE)**
+- **Query punch records by user or date range**
+- REST API for triggering synchronization and accessing data
 - H2 database for local storage
 
 ## Requirements
@@ -57,8 +60,19 @@ java -jar target/biometrictest-0.0.1-SNAPSHOT.jar
 
 ## API Endpoints
 
-- `GET /api/biometric/sync` - Trigger template synchronization from device
+### Template Synchronization
+- `POST /zkteco/sync` - Trigger template synchronization from device
+
+### Punch/Attendance Management
+- `POST /zkteco/sync-punches` - Sync punch logs from device to database
+- `GET /zkteco/punches` - Get all punch records
+- `GET /zkteco/punches/{userId}` - Get punch records for specific user
+- `GET /zkteco/punches/realtime` - Real-time punch monitoring via SSE
+
+### Other
 - `GET /h2-console` - H2 database console (dev mode)
+
+For detailed documentation on real-time punch monitoring, see [REALTIME_PUNCH_MONITORING.md](REALTIME_PUNCH_MONITORING.md).
 
 ## Native Libraries
 
