@@ -66,7 +66,44 @@ The application uses JACOB (Java-COM Bridge) which requires native Windows DLLs.
 
 ## Troubleshooting
 
+### Maven Import Issues
+
+If you encounter errors like `Could not find artifact net.sf.jacob-project:jacob:jar:1.20` when importing the project:
+
+**Common Causes:**
+- Outdated Maven metadata in your local `.m2` repository
+- IDE cached configuration pointing to a different version
+- Previous project configuration that used a different JACOB version
+
+**Quick Solutions:**
+
+1. **Force update Maven dependencies** (recommended first step):
+   ```bash
+   mvn clean install -U
+   ```
+   The `-U` flag forces Maven to update snapshots and releases from remote repositories.
+
+2. **Clear your local Maven repository cache**:
+   ```bash
+   # On Windows
+   rmdir /s /q %USERPROFILE%\.m2\repository\net\sf\jacob-project
+   
+   # On Linux/Mac
+   rm -rf ~/.m2/repository/net/sf/jacob-project
+   ```
+   Then run `mvn clean install -U` again.
+
+3. **IntelliJ IDEA**: Right-click on `pom.xml` → Maven → Reload Project
+
+4. **Eclipse**: Right-click on project → Maven → Update Project (check "Force Update")
+
+**📖 For detailed troubleshooting steps, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md)**
+
+### JACOB-Specific Issues
+
 See `libs/README.md` for JACOB-specific troubleshooting.
+
+### Device Connection Issues
 
 For device connection issues:
 - Verify network connectivity to the device
