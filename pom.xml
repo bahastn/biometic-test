@@ -58,14 +58,11 @@
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <!-- JACOB via local JAR (because it's not in Maven Central) -->
-        <!-- Put jacob-1.20.jar in: ${project.basedir}/libs/jacob-1.20.jar -->
+        <!-- JACOB library for Windows COM/ActiveX integration -->
         <dependency>
             <groupId>net.sf.jacob-project</groupId>
             <artifactId>jacob</artifactId>
-            <version>1.20</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/jacob-1.20.jar</systemPath>
+            <version>1.14.3</version>
         </dependency>
     </dependencies>
 

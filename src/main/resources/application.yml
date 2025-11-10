@@ -19,7 +19,7 @@ spring:
       enabled: true
 
 zkteco:
-  ip: 192.168.1.201
+  ip: 192.168.1.127
   port: 4370
   password: ""   # optional, leave empty if no comm key set on device
   machine-number: 1
