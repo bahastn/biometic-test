@@ -1,28 +1,67 @@
 # Biometric Test Application
 
-Spring Boot application for connecting to ZKTeco biometric devices (e.g., iFace 702) and synchronizing biometric templates.
+Spring Boot application for connecting to ZKTeco biometric devices (e.g., iFace 702) and managing real-time attendance monitoring.
 
-## Features
+## 🎯 Quick Start
 
-- Connect to ZKTeco devices via COM/ActiveX interface
-- Sync fingerprint templates from the device to local database
-- **Sync punch/attendance logs from the device**
-- **Real-time punch monitoring via Server-Sent Events (SSE)**
-- **Query punch records by user or date range**
-- REST API for triggering synchronization and accessing data
-- H2 database for local storage
+1. **Build the application**:
+   ```bash
+   mvn clean package
+   ```
 
-## Requirements
+2. **Run the application**:
+   ```bash
+   java -jar target/biometrictest-0.0.1-SNAPSHOT.jar
+   ```
 
-- Windows operating system (required for COM/ActiveX)
-- Java 17 or higher
-- Maven 3.6+
-- ZKTeco SDK installed and registered on Windows
-- ZKTeco device accessible on the network
+3. **Access the home page**:
+   Open your browser to **http://localhost:8080/**
 
-## Configuration
+## 📋 Features
 
-Edit `src/main/resources/application.yml` to configure your device:
+- ✅ **Home Page Dashboard** - Central hub with access to all features
+- ✅ **Real-time Punch Monitoring** - Live attendance tracking via Server-Sent Events (SSE)
+- ✅ **Device Connection Testing** - Verify connectivity to ZKTeco devices
+- ✅ **Biometric Template Sync** - Sync fingerprint/face templates from device
+- ✅ **Attendance Log Sync** - Import punch records from device
+- ✅ **H2 Database Console** - Direct database access and management
+- ✅ **REST API** - Complete API for data access and synchronization
+- ✅ **Database Persistence** - Automatic table creation and data storage
+
+## 📊 Application Pages
+
+### 🏠 Home Page - http://localhost:8080/
+Central dashboard providing:
+- Quick access to all features
+- Device connection testing
+- API endpoint documentation
+- Database connection details
+- Navigation to dashboard and H2 console
+
+### 📺 Real-time Punch Monitor - http://localhost:8080/dashboard
+Live attendance monitoring with:
+- Real-time punch notifications
+- Check-in/check-out tracking
+- Verification mode indicators (fingerprint, card, face)
+- Session statistics and timing
+
+### 💾 H2 Database Console - http://localhost:8080/h2-console
+Direct database access:
+- **JDBC URL**: `jdbc:h2:file:./data/biometrictest`
+- **Username**: `sa`
+- **Password**: *(leave empty)*
+
+## 🔧 Requirements
+
+- **Windows OS** - Required for COM/ActiveX integration
+- **Java 17+** - [Download](https://www.oracle.com/java/technologies/downloads/)
+- **Maven 3.6+** - [Download](https://maven.apache.org/download.cgi)
+- **ZKTeco SDK** - Must be installed and registered
+- **ZKTeco Device** - Accessible on network (e.g., iFace 702)
+
+## ⚙️ Configuration
+
+Edit `src/main/resources/application.yml` or `application.properties`:
 
 ```yaml
 zkteco:
@@ -32,95 +71,113 @@ zkteco:
   machine-number: 1        # Machine number (usually 1)
 ```
 
-## Device Setup
-
-This application is configured to connect to:
-- **Device**: ZKTeco iFace 702
-- **IP Address**: 192.168.1.127
-- **Port**: 4370
-- **Server IP**: 192.168.1.109 (where this application runs)
-
-## Building
+## 🏗️ Building
 
 ```bash
-./mvnw clean package
+mvn clean package
 ```
 
-## Running
+## 🚀 Running
 
+### Using Maven:
 ```bash
-./mvnw spring-boot:run
+mvn spring-boot:run
 ```
 
-Or run the JAR:
-
+### Using JAR:
 ```bash
 java -jar target/biometrictest-0.0.1-SNAPSHOT.jar
 ```
 
-## API Endpoints
+## 📡 API Endpoints
 
-### Template Synchronization
-- `POST /zkteco/sync` - Trigger template synchronization from device
+### Device Synchronization
+- `POST /zkteco/sync` - Sync biometric templates from device
+- `POST /zkteco/sync-punches` - Sync punch logs from device
+- `GET /zkteco/test-connection` - Test device connectivity
 
 ### Punch/Attendance Management
-- `POST /zkteco/sync-punches` - Sync punch logs from device to database
 - `GET /zkteco/punches` - Get all punch records
 - `GET /zkteco/punches/{userId}` - Get punch records for specific user
 - `GET /zkteco/punches/realtime` - Real-time punch monitoring via SSE
 
-### Other
-- `GET /h2-console` - H2 database console (dev mode)
+### Database & Console
+- `GET /h2-console` - H2 database console
 
-For detailed documentation on real-time punch monitoring, see [REALTIME_PUNCH_MONITORING.md](REALTIME_PUNCH_MONITORING.md).
+## 💾 Database Tables
 
-## Native Libraries
+### PUNCH_LOGS
+Stores attendance records with:
+- User ID and name
+- Punch timestamp
+- Verification method (fingerprint, card, face, etc.)
+- Check-in/check-out status
+- Sync timestamp
 
-The application uses JACOB (Java-COM Bridge) which requires native Windows DLLs. These are located in the `libs/` directory and are automatically included in the build. See `libs/README.md` for details.
+### BIOMETRIC_TEMPLATES
+Stores biometric data with:
+- User ID and name
+- Finger index (0-9)
+- Template data
+- Algorithm version
+- Enabled status
 
-## Troubleshooting
+## 🔍 Using the Application
 
-### Maven Import Issues
+1. **Start the application** and navigate to http://localhost:8080/
+2. **Test connection** to your ZKTeco device using the connection test button
+3. **Sync templates** to import biometric data: `POST /zkteco/sync`
+4. **Sync punches** to import attendance logs: `POST /zkteco/sync-punches`
+5. **Monitor real-time** by opening the dashboard and clicking "Connect"
+6. **View data** using the H2 console or API endpoints
 
-If you encounter errors like `Could not find artifact net.sf.jacob-project:jacob:jar:1.20` when importing the project:
+## 📚 Documentation
 
-**Common Causes:**
-- Outdated Maven metadata in your local `.m2` repository
-- IDE cached configuration pointing to a different version
-- Previous project configuration that used a different JACOB version
+- **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Comprehensive setup and configuration guide
+- **[REALTIME_PUNCH_MONITORING.md](REALTIME_PUNCH_MONITORING.md)** - Real-time monitoring details
+- **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Troubleshooting guide
 
-**Quick Solutions:**
+## 🐛 Troubleshooting
 
-1. **Force update Maven dependencies** (recommended first step):
-   ```bash
-   mvn clean install -U
-   ```
-   The `-U` flag forces Maven to update snapshots and releases from remote repositories.
+### Connection Issues
+- Verify device IP and port in configuration
+- Ensure ZKTeco SDK is installed and registered
+- Check network connectivity and firewall settings
+- Use the connection test feature from home page
 
-2. **Clear your local Maven repository cache**:
-   ```bash
-   # On Windows
-   rmdir /s /q %USERPROFILE%\.m2\repository\net\sf\jacob-project
-   
-   # On Linux/Mac
-   rm -rf ~/.m2/repository/net/sf/jacob-project
-   ```
-   Then run `mvn clean install -U` again.
+### Database Issues
+- Use H2 console with JDBC URL: `jdbc:h2:file:./data/biometrictest`
+- Database is created automatically in `./data/` directory
+- Check application logs for errors
 
-3. **IntelliJ IDEA**: Right-click on `pom.xml` → Maven → Reload Project
+### Dashboard Issues
+- Ensure application is running
+- Click "Connect" button in dashboard
+- Check browser console for SSE errors
+- Sync punches first using the sync button
 
-4. **Eclipse**: Right-click on project → Maven → Update Project (check "Force Update")
+For detailed troubleshooting, see **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)**
 
-**📖 For detailed troubleshooting steps, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md)**
+## 🔒 Security Notes
 
-### JACOB-Specific Issues
+For production deployment:
+- Disable H2 console
+- Use production database (PostgreSQL, MySQL)
+- Add authentication/authorization
+- Enable HTTPS
+- Restrict database access
 
-See `libs/README.md` for JACOB-specific troubleshooting.
+## 📄 Native Libraries
 
-### Device Connection Issues
+The application uses JACOB (Java-COM Bridge) for Windows COM/ActiveX integration. Native DLLs are located in `libs/` and automatically included in the build. See `libs/README.md` for details.
 
-For device connection issues:
-- Verify network connectivity to the device
-- Check firewall settings
-- Ensure ZKTeco SDK is properly installed
-- Verify device IP and port in application.yml
+## 📖 Additional Documentation
+
+- **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Comprehensive setup and configuration guide
+- **[REALTIME_PUNCH_MONITORING.md](REALTIME_PUNCH_MONITORING.md)** - Real-time monitoring details
+- **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Troubleshooting guide
+
+## 📝 License
+
+This project is licensed under the terms specified in the LICENSE file.
+
