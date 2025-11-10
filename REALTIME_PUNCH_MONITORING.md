@@ -206,6 +206,26 @@ data: User: 101 (Jane Smith), Time: 2025-11-10T08:32:00+00:00, Mode: 1, InOut: 0
 
 ---
 
+## Web UI for Real-Time Monitoring
+
+A beautiful web interface is included for monitoring punches in real-time. Simply start the application and navigate to:
+
+```
+http://localhost:8080/punch-monitor.html
+```
+
+### Features:
+- **Live Connection Status** - Visual indicator showing connection state
+- **Real-Time Statistics** - Total punches, check-ins, check-outs, and session time
+- **Animated Punch Cards** - Each punch appears with smooth animations
+- **Color-Coded Events** - Green for check-ins, red for check-outs
+- **Auto-Cleanup** - Keeps only the last 50 punches displayed
+- **Sync Button** - Trigger manual synchronization from the UI
+
+The UI automatically connects to the SSE endpoint and displays punch events as they happen.
+
+---
+
 ## HTML Example for Real-Time Monitoring
 
 Create a simple HTML page to monitor punches in real-time:

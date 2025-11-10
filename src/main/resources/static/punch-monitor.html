@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Biometric Punch Monitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .status {
+            flex: 1;
+            padding: 10px 15px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 200px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #6c757d;
+        }
+
+        .status-indicator.connected {
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.connecting {
+            background: #ffc107;
+        }
+
+        .status-indicator.error {
+            background: #dc3545;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-connect {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-disconnect {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-clear {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-sync {
+            background: #007bff;
+            color: white;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .stats {
+            padding: 20px 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #212529;
+        }
+
+        .punches-container {
+            padding: 30px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .punch-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-left: 4px solid #28a745;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .punch-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .punch-card.check-out {
+            border-left-color: #dc3545;
+        }
+
+        .punch-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .punch-user {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #212529;
+        }
+
+        .punch-time {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .punch-details {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .punch-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-checkin {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-checkout {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-fingerprint {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔐 Biometric Punch Monitor</h1>
+            <p class="subtitle">Real-time attendance tracking with ZKTeco devices</p>
+        </header>
+
+        <div class="controls">
+            <div class="status">
+                <div class="status-indicator" id="statusIndicator"></div>
+                <span id="statusText">Disconnected</span>
+            </div>
+            <button class="btn-connect" onclick="connect()" id="btnConnect">Connect</button>
+            <button class="btn-disconnect" onclick="disconnect()" id="btnDisconnect" disabled>Disconnect</button>
+            <button class="btn-sync" onclick="syncPunches()" id="btnSync">Sync Punches</button>
+            <button class="btn-clear" onclick="clearPunches()">Clear Display</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-label">Total Punches</div>
+                <div class="stat-value" id="totalPunches">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Check-ins</div>
+                <div class="stat-value" id="totalCheckins">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Check-outs</div>
+                <div class="stat-value" id="totalCheckouts">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Session Time</div>
+                <div class="stat-value" id="sessionTime">00:00</div>
+            </div>
+        </div>
+
+        <div class="punches-container" id="punchesContainer">
+            <div class="empty-state">
+                <div class="empty-state-icon">📊</div>
+                <h3>No punches yet</h3>
+                <p>Connect to the server to start monitoring real-time punches</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let eventSource = null;
+        let sessionStartTime = null;
+        let timerInterval = null;
+        let punchCount = 0;
+        let checkinCount = 0;
+        let checkoutCount = 0;
+
+        const API_BASE = 'http://localhost:8080/zkteco';
+
+        function updateStatus(status, text) {
+            const indicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            
+            indicator.className = 'status-indicator ' + status;
+            statusText.textContent = text;
+        }
+
+        function updateStats() {
+            document.getElementById('totalPunches').textContent = punchCount;
+            document.getElementById('totalCheckins').textContent = checkinCount;
+            document.getElementById('totalCheckouts').textContent = checkoutCount;
+        }
+
+        function updateSessionTime() {
+            if (!sessionStartTime) return;
+            
+            const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            
+            document.getElementById('sessionTime').textContent = 
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        function connect() {
+            if (eventSource) {
+                alert('Already connected');
+                return;
+            }
+
+            updateStatus('connecting', 'Connecting...');
+            document.getElementById('btnConnect').disabled = true;
+
+            eventSource = new EventSource(`${API_BASE}/punches/realtime`);
+            sessionStartTime = Date.now();
+            timerInterval = setInterval(updateSessionTime, 1000);
+
+            eventSource.onopen = () => {
+                updateStatus('connected', 'Connected - Monitoring');
+                document.getElementById('btnDisconnect').disabled = false;
+            };
+
+            eventSource.addEventListener('punch', (event) => {
+                addPunchCard(event.data);
+            });
+
+            eventSource.onerror = (error) => {
+                console.error('SSE Error:', error);
+                updateStatus('error', 'Connection Error');
+                disconnect();
+            };
+        }
+
+        function disconnect() {
+            if (eventSource) {
+                eventSource.close();
+                eventSource = null;
+            }
+            
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+
+            sessionStartTime = null;
+            updateStatus('', 'Disconnected');
+            document.getElementById('btnConnect').disabled = false;
+            document.getElementById('btnDisconnect').disabled = true;
+        }
+
+        function addPunchCard(punchData) {
+            const container = document.getElementById('punchesContainer');
+            
+            // Remove empty state if exists
+            const emptyState = container.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+
+            // Parse punch data
+            // Format: "User: 100 (John Doe), Time: 2025-11-10T08:30:00Z, Mode: 1, InOut: 0"
+            const userMatch = punchData.match(/User: (\d+) \(([^)]+)\)/);
+            const timeMatch = punchData.match(/Time: ([^,]+)/);
+            const modeMatch = punchData.match(/Mode: (\d+)/);
+            const inOutMatch = punchData.match(/InOut: (\d+)/);
+
+            const userId = userMatch ? userMatch[1] : 'Unknown';
+            const userName = userMatch ? userMatch[2] : 'Unknown';
+            const punchTime = timeMatch ? new Date(timeMatch[1]) : new Date();
+            const verifyMode = modeMatch ? parseInt(modeMatch[1]) : 0;
+            const inOutMode = inOutMatch ? parseInt(inOutMatch[1]) : 0;
+
+            const isCheckout = inOutMode === 1;
+            
+            // Update stats
+            punchCount++;
+            if (isCheckout) {
+                checkoutCount++;
+            } else {
+                checkinCount++;
+            }
+            updateStats();
+
+            // Create punch card
+            const card = document.createElement('div');
+            card.className = 'punch-card' + (isCheckout ? ' check-out' : '');
+            
+            card.innerHTML = `
+                <div class="punch-header">
+                    <div class="punch-user">${userName} (ID: ${userId})</div>
+                    <div class="punch-time">${punchTime.toLocaleString()}</div>
+                </div>
+                <div class="punch-details">
+                    <span class="punch-badge ${isCheckout ? 'badge-checkout' : 'badge-checkin'}">
+                        ${isCheckout ? '🚪 Check-out' : '👋 Check-in'}
+                    </span>
+                    <span class="punch-badge badge-fingerprint">
+                        ${getVerifyModeText(verifyMode)}
+                    </span>
+                </div>
+            `;
+
+            container.insertBefore(card, container.firstChild);
+
+            // Keep only last 50 punches
+            while (container.children.length > 50) {
+                container.removeChild(container.lastChild);
+            }
+        }
+
+        function getVerifyModeText(mode) {
+            const modes = {
+                0: '🔑 Password',
+                1: '👆 Fingerprint',
+                2: '💳 Card',
+                3: '😀 Face'
+            };
+            return modes[mode] || '❓ Unknown';
+        }
+
+        async function syncPunches() {
+            const btn = document.getElementById('btnSync');
+            btn.disabled = true;
+            btn.textContent = 'Syncing...';
+
+            try {
+                const response = await fetch(`${API_BASE}/sync-punches`, {
+                    method: 'POST'
+                });
+                const result = await response.text();
+                alert(result);
+            } catch (error) {
+                alert('Sync failed: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Sync Punches';
+            }
+        }
+
+        function clearPunches() {
+            const container = document.getElementById('punchesContainer');
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">📊</div>
+                    <h3>No punches yet</h3>
+                    <p>Connect to the server to start monitoring real-time punches</p>
+                </div>
+            `;
+            punchCount = 0;
+            checkinCount = 0;
+            checkoutCount = 0;
+            updateStats();
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            disconnect();
+        });
+    </script>
+</body>
+</html>
